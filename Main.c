@@ -4,12 +4,22 @@
 #include "CH57x_common.h"
 #include <stdio.h>
 
-void print_flash(const uint32_t addr, const uint32_t length)
+uint8_t buffer[500];
+
+void fill_buffer(void)
+{
+    for(int i = 0; i < 500; i++)
+    {
+        buffer[i] = i;
+    }
+}
+
+void print_memory(const uint32_t addr, const uint32_t length)
 {
     printf("\n\r0x%x: ", addr);
     for(int i = 1; i <= length; i++)
     {
-        uint8_t *pointer = addr+i-1;
+        uint8_t *pointer = (uint8_t*)(addr+i-1);
         printf("%x ", *pointer);
         if(i%16 == 0 && i!= length)
         {
@@ -33,11 +43,15 @@ int main()
 
     const uint32_t flash_block_start = 0x2800;
     printf("\n\rFlash content before erase.");
-    print_flash(flash_block_start, 1024);
+    print_memory(flash_block_start, 1024);
+
+    fill_buffer();
+    UINT8 res = FlashWriteBuf((UINT32)flash_block_start, (PUINT32)buffer, 500);
+    printf("\n\rFlash content after write.");
+    print_memory(flash_block_start, 1024);
 
     while(1)
     {
-        
         mDelaymS(500);
         GPIOB_SetBits( GPIO_Pin_0 ); 
         mDelaymS(500);
