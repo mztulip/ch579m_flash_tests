@@ -37,18 +37,29 @@ int main()
     GPIOA_ModeCfg(GPIO_Pin_8, GPIO_ModeIN_PU);
     GPIOA_ModeCfg(GPIO_Pin_9, GPIO_ModeOut_PP_5mA);
 
-
     UART1_DefInit();
     UART1_BaudRateCfg(9600);
 
-    const uint32_t flash_block_start = 0x2800;
-    printf("\n\rFlash content before erase.");
+    const uint32_t flash_block_start = 0x2800; //10k form start
+    printf("\n\rFlash content before erase. 1024 bytes printed");
+    print_memory(flash_block_start, 1024);
+
+    UINT8 e_res = FlashBlockErase( (UINT32)flash_block_start );
+    if(e_res == SUCCESS){printf("\n\r Erase success.");}
+    else
+    {printf("\n\rErase failed."); goto exit;}
+    printf("\n\rFlash content after erase. 1024 bytes printed");
     print_memory(flash_block_start, 1024);
 
     fill_buffer();
-    UINT8 res = FlashWriteBuf((UINT32)flash_block_start, (PUINT32)buffer, 500);
-    printf("\n\rFlash content after write.");
+    UINT8 w_res = FlashWriteBuf((UINT32)flash_block_start, (PUINT32)buffer, 500);
+    if(w_res == SUCCESS){printf("\n\r Write success.");}
+    else
+    {printf("\n\rWrite failed."); goto exit;}
+    printf("\n\rFlash content after write of the 500 bytes, 1024 bytes printed.");
     print_memory(flash_block_start, 1024);
+
+    exit:
 
     while(1)
     {
